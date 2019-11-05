@@ -14,7 +14,7 @@
 #pragma region Pinout
 
 #define DATA_pin 2
-#define SCK_pin  3
+#define SCK_pin  A0
 #define button_1 4
 #define button_2 5
 #define button_3 6
@@ -35,7 +35,7 @@ String controlmaxforce = String("0");
 int controlstrength = 0;
 
 //ADC
-const byte gainfactor = 32;
+const byte gainfactor = 64;
 double ADC_val_double = 0.0;
 
 //Berechnung
@@ -106,17 +106,17 @@ void loop() {
 
 	switch (MENU_step_int)
 	{
-	case 1:                 //Geschlecht
+	case 2:                 //Geschlecht
 		if (MENU_butt_int == 2) {
 			MENU_sex_bool = 1;		//maennlich
-			MENU_step_int = 2;		//Naechster Schritt (Alter)
+			MENU_step_int = 3;		//Naechster Schritt (Alter)
 		}
 		if (MENU_butt_int == 3) {
 			MENU_sex_bool = 0;		//weiblich
-			MENU_step_int = 2;		//Naechster Schritt (Alter)
+			MENU_step_int = 3;		//Naechster Schritt (Alter)
 		}
 		break;
-	case 2:                 //Alter
+	case 1:                 //Alter
 		if (MENU_butt_int == 2) {
 			MENU_age_int = MENU_age_int + 1; //Alter+
 		}
@@ -124,7 +124,7 @@ void loop() {
 			MENU_age_int = MENU_age_int - 1; //Alter-
 		}
 		if (MENU_butt_int == 4) {
-			MENU_step_int = 3;      //Naechster Schritt (Messen)
+			MENU_step_int = 2;      //Naechster Schritt (Messen)
 		}
 	case 3:                 //Messen
 		performCalculations();
@@ -140,9 +140,9 @@ void loop() {
 
 
 	//Check Standby Button Press2long OR IDLE/NoForce
-	delay(TimeConstant); //10ms
+	delay(TimeConstant); //10ms k
 	TimeIdle = TimeIdle + TimeConstant;
-	if (~MENU_butt_int)
+	if (!MENU_butt_int)
 	{
 		TimeIdle = 0;
 	}
@@ -161,6 +161,7 @@ void performCalculations() {
 	}
 
 	LUTA_strength_int = cmpr(CALC_Force, MENU_age_int, MENU_sex_bool);	//lookup table
+	
 
 	CALC_force_str = roundForce(CALC_Force);	//round and convert to string
 	CALC_max_str = roundForce(CALC_Force);
@@ -179,7 +180,9 @@ double measureADC(){
 		Serial.println("HX711 not found.");
 	}
 
-	return value;
+	double factor = ((5.0 / 16777216.0)*(1000.0 / (double)gainfactor));
+
+	return value*factor;
 }
 
 //display function
@@ -302,19 +305,19 @@ void PrintDisplay()
 
 			switch (LUTA_strength_int)                                //strength
 			{
-			case 1:                                                //strong
+			case 2:                                                //strong
 				tft.setTextSize(2);
 				tft.setCursor(75, 60);
 				tft.print("Stark");
 				tft.setTextSize(2);
 				break;
-			case 2:                                                //normal
+			case 1:                                                //normal
 				tft.setTextSize(2);
 				tft.setCursor(75, 60);
 				tft.print("Normal");
 				tft.setTextSize(2);
 				break;
-			case 3:                                                //weak
+			case 0:                                                //weak
 				tft.setTextSize(2);
 				tft.setCursor(75, 60);
 				tft.print("Schwach");
@@ -395,7 +398,7 @@ void PrintDisplay()
 double inCalc() {
 	while (!hx711.is_ready());
 
-	double offset = hx711.read_mV();
+	double offset = measureADC();
 	delay(100);
 	
 	return offset;
@@ -408,7 +411,7 @@ double inCalc() {
 double calc(double AD_double) {
 	AD_double = AD_double - AD_StartValue_double;
 	//Wert angleichen, Bsp. 35mV pro Newton
-	int Force_double = AD_double / 35;
+	int Force_double = AD_double;
 	//---Wert runden
 	return Force_double;
 }
@@ -807,19 +810,19 @@ int MENU_butt_fcn()
 	{
 	case 0:
 		MENU_butt_count = 1;
-		if (~digitalRead(button_1))
+		if (!digitalRead(button_1))
 		{
 			MENU_butt_select = 1;
 		}
-		else if (~digitalRead(button_2))
+		else if (!digitalRead(button_2))
 		{
 			MENU_butt_select = 2;
 		}
-		else if (~digitalRead(button_3))
+		else if (!digitalRead(button_3))
 		{
 			MENU_butt_select = 3;
 		}
-		else if (~digitalRead(button_4))
+		else if (!digitalRead(button_4))
 		{
 			MENU_butt_select = 4;
 		}
@@ -829,7 +832,7 @@ int MENU_butt_fcn()
 		}
 		break;
 	case 1:
-		if (~digitalRead(button_1))
+		if (!digitalRead(button_1))
 		{
 			MENU_butt_count += 1;
 		}
@@ -839,7 +842,7 @@ int MENU_butt_fcn()
 		}
 		break;
 	case 2:
-		if (~digitalRead(button_2))
+		if (!digitalRead(button_2))
 		{
 			MENU_butt_count += 1;
 		}
@@ -849,7 +852,7 @@ int MENU_butt_fcn()
 		}
 		break;
 	case 3:
-		if (~digitalRead(button_3))
+		if (!digitalRead(button_3))
 		{
 			MENU_butt_count += 1;
 		}
@@ -859,7 +862,7 @@ int MENU_butt_fcn()
 		}
 		break;
 	case 4:
-		if (~digitalRead(button_4))
+		if (!digitalRead(button_4))
 		{
 			MENU_butt_count += 1;
 		}
