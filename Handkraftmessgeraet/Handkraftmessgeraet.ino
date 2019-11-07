@@ -35,7 +35,7 @@ String controlmaxforce = String("0");
 int controlstrength = 0;
 
 //ADC
-const byte gainfactor = 64;
+const byte gainfactor = 32;
 double ADC_val_double = 0.0;
 
 //Berechnung
@@ -91,11 +91,13 @@ void setup() {
 	tft.print("Willkommen");
 	tft.setCursor(24, 70);
 	tft.print("bei MT17A!");
+	delay(2000);
 	tft.setTextColor(ST7735_BLACK);
+	tft.fillScreen(ST7735_WHITE);
 	tft.setTextSize(1);
-	tft.setCursor(20, 95);
+	tft.setCursor(20, 50);
 	tft.print("Bitte keine Kraft auf");
-	tft.setCursor(21, 105);
+	tft.setCursor(21, 80);
 	tft.print("den Griff aufbringen.");
 	delay(2000);
 
@@ -181,7 +183,7 @@ double measureADC(){
 
 	if (hx711.is_ready()) {
 		value = hx711.read_uV();
-		double factor = ((5.0 / 16777216.0)*(1000.0 / 64.0));
+		double factor = ((5.0 / 16777216.0)*(1000.0 / 32.0));
 		value = value * factor;
 		delay(100);
 	}
@@ -303,7 +305,7 @@ void PrintDisplay()
 			tft.print(CALC_max_str);                             //Write maximum handforce
 			tft.setTextSize(2);
 			tft.setCursor(5, 89);
-			tft.print("mom:");
+			tft.print("akt:");
 			tft.setTextSize(3);
 			tft.setCursor(75, 82);
 			tft.print(CALC_force_str);                           //Write current handforce
@@ -415,7 +417,7 @@ double inCalc() {
 double calc(double AD_double) {
 	AD_double = AD_double - AD_StartValue_double;
 	//Wert angleichen, Bsp. 35mV pro Newton
-	int Force_double = -0.5 * AD_double;
+	int Force_double = 0.5 * AD_double;
 	//---Wert runden
 	return Force_double;
 }
