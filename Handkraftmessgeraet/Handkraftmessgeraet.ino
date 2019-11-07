@@ -91,6 +91,12 @@ void setup() {
 	tft.print("Willkommen");
 	tft.setCursor(24, 70);
 	tft.print("bei MT17A!");
+	tft.setTextColor(ST7735_BLACK);
+	tft.setTextSize(1);
+	tft.setCursor(20, 95);
+	tft.print("Bitte keine Kraft auf");
+	tft.setCursor(21, 105);
+	tft.print("den Griff aufbringen.");
 	delay(2000);
 
 	//Offset:
@@ -165,7 +171,7 @@ void performCalculations() {
 	
 
 	CALC_force_str = roundForce(CALC_Force);	//round and convert to string
-	CALC_max_str = roundForce(CALC_Force);
+	CALC_max_str = roundForce(CALC_maxForce);
 }
 
 
@@ -273,8 +279,6 @@ void PrintDisplay()
 			tft.print("M");
 			tft.setCursor(96, 111);
 			tft.print("W");
-			tft.setCursor(136, 111);
-			tft.print("=");
 		}
 		break;
 
@@ -346,7 +350,7 @@ void PrintDisplay()
 			if (CALC_max_str != controlmaxforce)                     //refresh maximum handforce
 			{
 				controlmaxforce = CALC_max_str;
-				tft.fillRect(5, 60, 30, 20, ST7735_WHITE);
+				tft.fillRect(5, 60, 50, 20, ST7735_WHITE);
 				tft.setTextSize(2);
 				tft.setCursor(5, 60);
 				tft.print(CALC_max_str);
@@ -355,7 +359,7 @@ void PrintDisplay()
 			if (CALC_force_str != controlforce)                      //refresh current handforce
 			{
 				controlforce = CALC_force_str;
-				tft.fillRect(75, 82, 45, 25, ST7735_WHITE);
+				tft.fillRect(75, 82, 85, 25, ST7735_WHITE);
 				tft.setTextSize(3);
 				tft.setCursor(75, 82);
 				tft.print(CALC_force_str);
@@ -364,7 +368,7 @@ void PrintDisplay()
 			if (LUTA_strength_int != controlstrength)                //refresh strength
 			{
 				controlstrength = LUTA_strength_int;
-				tft.fillRect(75, 60, 60, 20, ST7735_WHITE);
+				tft.fillRect(75, 60, 90, 20, ST7735_WHITE);
 
 				switch (LUTA_strength_int)
 				{
@@ -392,7 +396,6 @@ void PrintDisplay()
 		break;
 	}
 }
-
 #pragma region Calculation
 
 //return => Kraft-Offset
@@ -412,7 +415,7 @@ double inCalc() {
 double calc(double AD_double) {
 	AD_double = AD_double - AD_StartValue_double;
 	//Wert angleichen, Bsp. 35mV pro Newton
-	int Force_double = AD_double;
+	int Force_double = -0.5 * AD_double;
 	//---Wert runden
 	return Force_double;
 }
@@ -798,7 +801,7 @@ int cmpr(double Force_double, int Age_int, int Gender_int) {
 
 String roundForce(double Force_double) {
 	char Temp_char[4] = "";
-	dtostrf(Force_double, 1, 2, Temp_char);
+	dtostrf(Force_double, 1, 1, Temp_char);
 	String LUTA_strength_string = Temp_char;
 	return LUTA_strength_string;
 }
