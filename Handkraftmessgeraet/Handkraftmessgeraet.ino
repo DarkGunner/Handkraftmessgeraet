@@ -14,7 +14,7 @@
 #pragma region Pinout
 
 #define DATA_pin 2
-#define SCK_pin  A0
+#define SCK_pin  3
 #define button_1 4
 #define button_2 5
 #define button_3 6
@@ -81,7 +81,7 @@ void setup() {
 	//Display init
 	tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
 	tft.fillScreen(ST7735_WHITE);
-	tft.setRotation(1);
+	tft.setRotation(3);
 	//text init
 	tft.setTextColor(ST7735_RED);
 	tft.setTextSize(2);
@@ -154,6 +154,7 @@ void loop() {
 
 void performCalculations() {
 	ADC_val_double = measureADC();
+	Serial.println(ADC_val_double);
 	CALC_Force = calc(ADC_val_double);	//current force
 
 	if (CALC_Force > CALC_maxForce){	//max force
@@ -173,16 +174,16 @@ double measureADC(){
 	double value = 0;
 
 	if (hx711.is_ready()) {
-		value = hx711.read_mV();
+		value = hx711.read_uV();
+		double factor = ((5.0 / 16777216.0)*(1000.0 / 64.0));
+		value = value * factor;
 		delay(100);
 	}
 	else {
 		Serial.println("HX711 not found.");
 	}
 
-	double factor = ((5.0 / 16777216.0)*(1000.0 / (double)gainfactor));
-
-	return value*factor;
+	return value;
 }
 
 //display function
