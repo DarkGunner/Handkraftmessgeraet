@@ -13,8 +13,10 @@
 
 #pragma region Pinout
 
-#define DATA_pin 2
-#define SCK_pin  3
+#define ADC_DATA_pin 2		// nicht mit dem Display verbinden!!!!
+#define ADC_SCK_pin  3		// ist kein SPI!!! nicht mit Display verbinden!!!!
+
+
 #define button_1 4
 #define button_2 5
 #define button_3 6
@@ -22,6 +24,7 @@
 #define TFT_RST  8 
 #define TFT_DC   9
 #define TFT_CS  10 
+// Arduino SPI: MOSI D11; MISO D12; SCK D13; CS D10			//MOSI = Data für Display
 
 #pragma endregion Pinout
 
@@ -70,7 +73,7 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 void setup() {
 	//ADC
 	Serial.begin(57600);
-	hx711.init(DATA_pin, SCK_pin, gainfactor);
+	hx711.init(ADC_DATA_pin, ADC_SCK_pin, gainfactor);
 
 	//Button Setup
 	pinMode(button_1, INPUT_PULLUP);
