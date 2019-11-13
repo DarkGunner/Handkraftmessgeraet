@@ -13,17 +13,22 @@
 
 #pragma region Pinout
 
+//ADC
 #define ADC_DATA_pin 2		// nicht mit dem Display verbinden!!!!
 #define ADC_SCK_pin  3		// ist kein SPI!!! nicht mit Display verbinden!!!!
 
-
+//Buttons
 #define button_1 4
 #define button_2 5
 #define button_3 6
 #define button_4 7
+
+//Display
 #define TFT_RST  8 
 #define TFT_DC   9
-#define TFT_CS  10 
+#define TFT_CS	 10 
+#define TFT_DATA 11
+#define TFT_SCK	 13
 // Arduino SPI: MOSI D11; MISO D12; SCK D13; CS D10			//MOSI = Data für Display
 
 #pragma endregion Pinout
@@ -32,6 +37,7 @@
 
 //Display variables
 int controlmenu = 0;
+int controlage = 0;
 int controlage = 0;
 String controlforce = String("0");
 String controlmaxforce = String("0");
@@ -68,7 +74,7 @@ int TimeIdleThreshhold = 20000; //Zeit bis Standby-modus in
 #pragma endregion Variables
 
 HX711_Lib hx711;
-Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_DATA, TFT_SCK, TFT_RST);
 
 void setup() {
 	//ADC
@@ -82,6 +88,9 @@ void setup() {
 	pinMode(button_4, INPUT_PULLUP);
 
 	//Display init
+	pinMode(TFT_SCK, OUTPUT);
+	pinMode(TFT_DATA, OUTPUT);
+
 	tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
 	tft.fillScreen(ST7735_WHITE);
 	tft.setRotation(3);
