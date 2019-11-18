@@ -1,4 +1,4 @@
-/*
+ï»¿/*
  Name:		Handkraftmessgeraet.ino
  Created:	27.10.2019 22:54:56
 */
@@ -28,8 +28,9 @@
 #define TFT_DC   9
 #define TFT_CS	 10 
 #define TFT_DATA 11
+#define TFT_BACKLIGHT 12
 #define TFT_SCK	 13
-// Arduino SPI: MOSI D11; MISO D12; SCK D13; CS D10			//MOSI = Data für Display
+// Arduino SPI: MOSI D11; MISO D12; SCK D13; CS D10			//MOSI = Data fï¿½r Display
 
 #pragma endregion Pinout
 
@@ -37,7 +38,6 @@
 
 //Display variables
 int controlmenu = 0;
-int controlage = 0;
 int controlage = 0;
 String controlforce = String("0");
 String controlmaxforce = String("0");
@@ -57,7 +57,7 @@ int LUTA_strength_int = 2;
 
 //Menu
 
-int MENU_step_int = 1; //Eingabeschritt/ menueschritt 
+int MENU_step_int = 3; //Eingabeschritt/ menueschritt 
 int MENU_age_int = 25;  //Alter
 bool MENU_sex_bool = 1; //Geschlecht
 
@@ -90,8 +90,9 @@ void setup() {
 	//Display init
 	pinMode(TFT_SCK, OUTPUT);
 	pinMode(TFT_DATA, OUTPUT);
-
-	tft.initR(INITR_BLACKTAB);   // initialize a ST7735S chip, black tab
+  pinMode(TFT_BACKLIGHT, OUTPUT);
+  digitalWrite(TFT_BACKLIGHT, HIGH);
+  tft.initR(INITR_BLACKTAB);            // initialize a ST7735S chip, black tab
 	tft.fillScreen(ST7735_WHITE);
 	tft.setRotation(3);
 	//text init
@@ -165,9 +166,12 @@ void loop() {
 	if (!MENU_butt_int)
 	{
 		TimeIdle = 0;
+    digitalWrite(TFT_BACKLIGHT,HIGH);       //Sicherstellen, dass Display an ist
+   
 	}
 	if (TimeIdle >= TimeIdleThreshhold) {
 		//Levin Standby
+    digitalWrite(TFT_BACKLIGHT,LOW);
 	}
 }
 
@@ -195,7 +199,7 @@ double measureADC(){
 
 	if (hx711.is_ready()) {
 		value = hx711.read_uV();
-		double factor = ((5.0 / 16777216.0)*(1000.0 / 32.0));
+		double factor = ((1.25 / 16777216.0)*(1000.0 / 32.0));
 		value = value * factor;
 		delay(100);
 	}
@@ -357,6 +361,41 @@ void PrintDisplay()
 			tft.print("x");
 			tft.setCursor(136, 111);
 			tft.print("=");
+      tft.setCursor(56, 110);           //Print restart
+      tft.setTextSize(2);
+      tft.print("o");
+      tft.drawPixel(65, 115, ST7735_WHITE);
+      tft.drawPixel(65, 116, ST7735_WHITE);
+      tft.drawPixel(65, 117, ST7735_WHITE);
+      tft.drawPixel(64, 115, ST7735_WHITE);
+      tft.drawPixel(64, 116, ST7735_WHITE);
+      tft.drawPixel(64, 117, ST7735_WHITE);
+      tft.drawPixel(64, 118, ST7735_WHITE);
+      tft.drawPixel(65, 118, ST7735_WHITE);
+
+      tft.drawPixel(64, 115, ST7735_BLACK);
+      tft.drawPixel(63, 115, ST7735_BLACK);
+      tft.drawPixel(64, 114, ST7735_BLACK);
+      tft.drawPixel(63, 114, ST7735_BLACK);
+      tft.drawPixel(63, 113, ST7735_BLACK);
+      tft.drawPixel(62, 113, ST7735_BLACK);
+      tft.drawPixel(62, 112, ST7735_BLACK);
+      tft.drawPixel(61, 112, ST7735_BLACK);
+      tft.drawPixel(61, 111, ST7735_BLACK);
+      tft.drawPixel(60, 111, ST7735_BLACK);
+            
+      tft.drawPixel(64, 116, ST7735_BLACK);
+      tft.drawPixel(63, 116, ST7735_BLACK);
+      tft.drawPixel(63, 117, ST7735_BLACK);
+      tft.drawPixel(62, 117, ST7735_BLACK);
+      tft.drawPixel(62, 118, ST7735_BLACK);
+      tft.drawPixel(61, 118, ST7735_BLACK);
+      tft.drawPixel(61, 119, ST7735_BLACK);
+      tft.drawPixel(60, 119, ST7735_BLACK);
+      
+      tft.setCursor(87, 115);
+      tft.setTextSize(1);
+      tft.print("tare");
 		}
 
 		else                                                        //option for refresh parts of the display
