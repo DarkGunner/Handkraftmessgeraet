@@ -178,7 +178,7 @@ void loop() {
 
 void performCalculations() {
 	ADC_val_double = measureADC();
-	Serial.println(ADC_val_double);
+
 	CALC_Force = calc(ADC_val_double);	//current force
 
 	if (CALC_Force > CALC_maxForce){	//max force
@@ -193,21 +193,52 @@ void performCalculations() {
 }
 
 
-//ADC
-double measureADC(){
-	double value = 0;
+//ADC eine Dose
+//double measureADC(){
+//	double value = 0;
+//
+//	if (hx711.is_ready()) {
+//		value = hx711.read_uV();
+//		double factor = ((1.25 / 16777216.0)*(1000.0 / 32.0));
+//		value = value * factor;
+//		delay(100);
+//		String serielleAusgabe = (String)(value);
+//		Serial.println(serielleAusgabe);
+//	}
+//	else {
+//		Serial.println("HX711 not found.");
+//	}
+//
+//	return value;
+//}
+
+
+//ADC beide Dosen
+double measureADC() {
+	double value1 = 0;
+	double value2 = 0;
 
 	if (hx711.is_ready()) {
-		value = hx711.read_uV();
-		double factor = ((1.25 / 16777216.0)*(1000.0 / 32.0));
-		value = value * factor;
+		hx711.set_gain(32);
+		value1 = hx711.read_uV();
+		double factor1 = ((1.25 / 16777216.0) * (1000.0 / 32.0));
+		value1 = value1 * factor1;
 		delay(100);
+
+		hx711.set_gain(64);
+		value2 = hx711.read_uV();
+		double factor2 = ((1.25 / 16777216.0) * (1000.0 / 64.0));
+		value2 = value2 * factor2;
+		delay(100);
+
+		String serielleAusgabe = (String)(value1 + value2) + "\t" + value1 + "\t" + value2;
+		Serial.println(serielleAusgabe);
 	}
 	else {
 		Serial.println("HX711 not found.");
 	}
 
-	return value;
+	return (value1 + value2);
 }
 
 //display function
@@ -468,7 +499,7 @@ double inCalc() {
 double calc(double AD_double) {
 	AD_double = AD_double - AD_StartValue_double;
 	//Wert angleichen, Bsp. 35mV pro Newton
-	int Force_double = 0.5 * AD_double;
+	int Force_double = 1.7 * AD_double;
 	//---Wert runden
 	return Force_double;
 }
